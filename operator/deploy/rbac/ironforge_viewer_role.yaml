@@ -5,7 +5,7 @@ metadata:
   name: ironforge-viewer-role
 rules:
 - apiGroups:
-  - ironforge.io
+  - ironrain.io
   resources:
   - ironforges
   verbs:
@@ -13,7 +13,7 @@ rules:
   - list
   - watch
 - apiGroups:
-  - ironforge.io
+  - ironrain.io
   resources:
   - ironforges/status
   verbs:

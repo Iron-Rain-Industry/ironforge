@@ -28,34 +28,4 @@ rules:
   verbs:
   - create
 
-##
-## Rules for ironrain.io/v1alpha1, Kind: IronForge
-##
-- apiGroups:
-  - ironrain.io
-  resources:
-  - ironforges
-  - ironforges/status
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- verbs:
-  - "*"
-  apiGroups:
-  - ""
-  resources:
-  - "configmaps"
-  - "services"
-- verbs:
-  - "*"
-  apiGroups:
-  - "apps"
-  resources:
-  - "statefulsets"
-
 # +kubebuilder:scaffold:rules

@@ -1,0 +1,82 @@
+# The IronForge Helm chart is to be part of the IronForge Operator.
+# Due to this deploying this chart will provide a one to one user workspace. 
+
+# auth configuration
+auth: 
+  # Users email address as it is in the SSO store, currently only Keycloak can be configured.
+  email: "admin@example.com"
+
+  # Root keycloak URL, change auth to path if not using defaults
+  keycloakUrl: https://<KEYCLOAK>/auth
+  # If using a non-default scope
+  keycloakScope: "openid email profile"
+  # Groups to allow access to the IronForge instance
+  # Create a mapper on the client called groups that contains the user Group Membership property
+  keycloakGroup: code-users
+  # Keycloak client id and secret
+  keycloakClientID: ironforge-client
+  keycloakClientSecret: ''
+
+  image:
+    registry: quay.io
+    repository: oauth2-proxy/oauth2-proxy
+    tag: v6.1.1
+    pullPolicy: Always
+
+
+# IDE configuration
+ide: 
+  # The programming language environment, on offer is:
+  # - python
+  # - cpp
+  # - electron
+  # - dart
+  # - go
+  # - php
+  # - rust
+  # - swift
+  # - rpm
+  # - custom - Use this to select your own image below
+  language: python
+
+  pullPolicy: Always
+  # Will only work if language is set to custom
+  image:
+    registry: docker.io
+    repository: ironrainindustries/ironforge-ide-python
+    tag: 1.7.0
+
+  # If Keycloak is http then the ingress will function without TLS
+  # If Keycloak uses SSL then the ingress need to be terminated with SSl for the redirect
+  ingress:
+    enabled: false
+    
+    # Use if you provision external urls on a consistent domain, i.e xip.io
+    useDomain:
+      enabled: false
+      # Url will of format <USERNAME>-ironforge-<LANGUAGE>.<INGRESS_DOMAIN>
+      ingressDomain: '192.168.0.179.xip.io'
+
+    # External will only work if useDomain is set to false
+    externalUrl: ''
+
+    tls:
+      enabled: false
+      secretName: tls-secret-
+      # Only support Cert Manager configs supporting the kubernetes.io/tls-acme flag
+      useCertmanager: false
+
+  persistence:
+    enabled: false
+    size: 8Gi
+    
+    # If not using the cluster default, leave blank otherwise
+    storageClass: ''
+
+  resources:
+    limits:
+      cpu: "1000m"
+      memory: 1000Mi
+    requests:
+      cpu: "1000m"
+      memory: 1000Mi    

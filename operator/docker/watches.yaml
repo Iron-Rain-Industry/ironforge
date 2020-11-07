@@ -1,0 +1,15 @@
+# Use the 'create api' subcommand to add watches to this file.
+- group: ironrain.io
+  version: v1alpha1
+  kind: IronForge
+  chart: helm-charts/ironforge
+# +kubebuilder:scaffold:watch
+  overrideValues:
+    auth.keycloakUrl: $KEYCLOAK_URL
+    auth.keycloakScope: $KEYCLOAK_SCOPE
+    auth.keycloakGroup: $KEYCLOAK_GROUP
+    auth.keycloakClientID: $KEYCLOAK_CLIENT_ID
+    auth.keycloakClientSecret: $KEYCLOAK_CLIENT_SECRET
+    auth.image.registry: $AUTH_IMAGE_REGISTRY
+    auth.image.repository: $AUTH_IMAGE_REPOSITORY
+    auth.image.tag: $AUTH_IMAGE_TAG

@@ -1,4 +1,4 @@
-apiVersion: ironforge.io/v1alpha1
+apiVersion: ironrain.io/v1alpha1
 kind: IronForge
 metadata:
   name: ironforge-sample
