@@ -1,0 +1,48 @@
+apiVersion: ironforge.io/v1alpha1
+kind: IronForge
+metadata:
+  name: ironforge-sample
+spec:
+  # Default values copied from <project_dir>/helm-charts/ironforge/values.yaml
+  auth:
+    email: admin@example.com
+    image:
+      pullPolicy: Always
+      registry: quay.io
+      repository: oauth2-proxy/oauth2-proxy
+      tag: v6.1.1
+    keycloakClientID: ironforge-client
+    keycloakClientSecret: ""
+    keycloakGroup: code-users
+    keycloakScope: openid email profile
+    keycloakUrl: https://<KEYCLOAK>/auth
+  ide:
+    image:
+      registry: docker.io
+      repository: ironrainindustries/ironforge-ide-python
+      tag: 1.7.0
+    ingress:
+      enabled: false
+      externalUrl: ""
+      tls:
+        enabled: false
+        secretName: tls-secret-
+        useCertmanager: false
+      useDomain:
+        enabled: false
+        ingressDomain: 192.168.0.179.xip.io
+    language: python
+    persistence:
+      enabled: false
+      size: 8Gi
+      storageClass: ""
+    pullPolicy: Always
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 1000Mi
+      requests:
+        cpu: 1000m
+        memory: 1000Mi
+  
+  

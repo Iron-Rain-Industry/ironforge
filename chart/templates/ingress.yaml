@@ -1,0 +1,37 @@
+{{ if .Values.ide.ingress.enabled }}  
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:  
+{{ if .Values.ide.ingress.tls.enabled }}
+  {{ if .Values.ide.ingress.tls.useCertManager }}
+  annotations:
+    kubernetes.io/tls-acme: "true"
+  {{ end }}
+{{ end }}    
+  labels:
+    ironforge-ide-object: ingress
+  name: {{ regexSplit "@+" .Values.auth.email -1 | first }}-ironforge-{{ .Values.ide.language }}-ingress
+spec:
+  rules:
+{{ if .Values.ide.ingress.useDomain.enabled }}  
+  - host: {{ regexSplit "@+" .Values.auth.email -1 | first }}-ironforge-{{ .Values.ide.language }}.{{ .Values.ide.ingress.useDomain.ingressDomain }}
+{{ else }}  
+  - host: {{ .Values.ide.ingress.externalUrl }}
+{{ end }}
+    http:
+      paths:
+      - backend:
+          serviceName: {{ regexSplit "@+" .Values.auth.email -1 | first }}-ironforge-{{ .Values.ide.language }}-svc
+          servicePort: 4180        
+{{ if .Values.ide.ingress.tls.enabled }}            
+  tls:
+{{ if .Values.ide.ingress.useDomain.enabled }}  
+  - hosts:
+    - {{ regexSplit "@+" .Values.auth.email -1 | first }}-ironforge-{{ .Values.ide.language }}.{{ .Values.ide.ingress.useDomain.ingressDomain }}
+{{ else }}  
+  - hosts:
+    - {{ .Values.ide.ingress.externalUrl }}
+{{ end }}    
+    secretName: {{ .Values.ide.ingress.tls.secretName }}
+{{ end }}
+{{ end }}

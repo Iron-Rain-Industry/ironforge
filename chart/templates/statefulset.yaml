@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:      
+  labels:
+    software: ironforge
+  name: {{ regexSplit "@+" .Values.auth.email -1 | first }}-ironforge-{{ .Values.ide.language }}
+spec:    
+  selector:
+    matchLabels:
+      ironforge-ide: {{ regexSplit "@+" .Values.auth.email -1 | first }}-ironforge-{{ .Values.ide.language }}
+  serviceName: {{ regexSplit "@+" .Values.auth.email -1 | first }}-ironforge-{{ .Values.ide.language }}-svc
+  template:
+    metadata:
+      labels:
+        ironforge-ide: {{ regexSplit "@+" .Values.auth.email -1 | first }}-ironforge-{{ .Values.ide.language }}
+    spec:
+      containers:
+      {{ if eq .Values.ide.language "custom" }}
+      - image: "{{ .Values.ide.image.registry }}/{{ .Values.ide.image.repository }}:{{ .Values.ide.image.tag }}"
+        imagePullPolicy: {{ .Values.ide.pullPolicy }}
+        name: ironforge-{{ .Values.ide.language }}-ide
+      {{ else }}
+      - image: theiaide/theia-{{ .Values.ide.language }}:1.7.0
+        imagePullPolicy: {{ .Values.ide.pullPolicy }}
+        name: ironforge-{{ .Values.ide.language }}-ide
+      {{ end }}
+        ports:
+        - containerPort: 3000
+          name: tcp-3000
+          protocol: TCP
+        resources:
+          limits:
+            cpu: {{ .Values.ide.resources.limits.cpu }}
+            memory: {{ .Values.ide.resources.limits.memory }}
+          requests:
+            cpu: {{ .Values.ide.resources.requests.cpu }}
+            memory: {{ .Values.ide.resources.requests.memory }}
+
+      - env:
+        - name: OAUTH2_PROXY_AUTHENTICATED_EMAILS_FILE
+          value: /config/email
+        - name: OAUTH2_PROXY_CLIENT_ID
+          value: {{ .Values.auth.keycloakClientID }}
+        - name: OAUTH2_PROXY_CLIENT_SECRET
+          value: {{ .Values.auth.keycloakClientSecret }}
+        - name: OAUTH2_PROXY_COOKIE_SECRET
+          value: abcd1234abcd1234
+        - name: OAUTH2_PROXY_HTTP_ADDRESS
+          value: 0.0.0.0:4180
+        - name: OAUTH2_PROXY_KEYCLOAK_GROUP
+          value: {{ .Values.auth.keycloakGroup }}
+        - name: OAUTH2_PROXY_LOGIN_URL
+          value: {{ .Values.auth.keycloakUrl }}/realms/master/protocol/openid-connect/auth
+        - name: OAUTH2_PROXY_PROVIDER
+          value: keycloak
+        - name: OAUTH2_PROXY_REDEEM_URL
+          value: {{ .Values.auth.keycloakUrl }}/realms/master/protocol/openid-connect/token
+        - name: OAUTH2_PROXY_SCOPE
+          value: {{ .Values.auth.keycloakScope }}
+        - name: OAUTH2_PROXY_SSL_INSECURE_SKIP_VERIFY
+          value: "true"
+        - name: OAUTH2_PROXY_UPSTREAMS
+          value: http://0.0.0.0:3000
+        - name: OAUTH2_PROXY_VALIDATE_URL
+          value: {{ .Values.auth.keycloakUrl }}/realms/master/protocol/openid-connect/userinfo
+        image: "{{ .Values.auth.image.registry }}/{{ .Values.auth.image.repository }}:{{ .Values.auth.image.tag }}"
+        imagePullPolicy: {{ .Values.auth.image.pullPolicy }}
+        name: oauth
+        ports:
+        - containerPort: 4180
+          name: tcp-4180
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 200m
+            memory: 128Mi
+          requests:
+            cpu: 200m
+            memory: 128m
+        volumeMounts:
+        - mountPath: /config/
+          name: user-auth
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext:
+        runAsUser: 2000
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - configMap:
+          defaultMode: 0644
+          items:
+          - key: email
+            path: email
+          name: {{ regexSplit "@+" .Values.auth.email -1 | first }}-ironforge-auth
+          optional: false
+        name: user-auth

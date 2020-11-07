@@ -1,0 +1,24 @@
+# permissions for end users to edit ironforges.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ironforge-editor-role
+rules:
+- apiGroups:
+  - ironforge.io
+  resources:
+  - ironforges
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ironforge.io
+  resources:
+  - ironforges/status
+  verbs:
+  - get

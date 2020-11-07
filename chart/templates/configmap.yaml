@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    ironforge-ide-object: email-auth
+  name: {{ regexSplit "@+" .Values.auth.email -1 | first }}-ironforge-auth
+data:
+  email: {{ .Values.auth.email }}
