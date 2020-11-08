@@ -27,7 +27,12 @@ spec:
         ports:
         - containerPort: 3000
           name: tcp-3000
-          protocol: TCP     
+          protocol: TCP 
+{{ if .Values.ide.persistence.enabled }}          
+        volumeMounts:
+        - name: {{ regexSplit "@+" .Values.auth.email -1 | first }}-ironforge-{{ .Values.ide.language }}
+          mountPath: /home/project
+{{ end }}          
         resources:
           limits:
             cpu: {{ .Values.ide.resources.limits.cpu }}
@@ -99,3 +104,14 @@ spec:
           name: {{ regexSplit "@+" .Values.auth.email -1 | first }}-ironforge-auth
           optional: false
         name: user-auth
+{{ if .Values.ide.persistence.enabled }}        
+  volumeClaimTemplates:
+  - metadata:
+      name: {{ regexSplit "@+" .Values.auth.email -1 | first }}-ironforge-{{ .Values.ide.language }}
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: {{ .Values.ide.persistence.storageClass }}
+      resources:
+        requests:
+          storage: {{ .Values.ide.persistence.size }}
+{{ end }}          
